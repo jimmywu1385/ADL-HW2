@@ -1,0 +1,11 @@
+torch==1.10.2
+spacy==3.2.2
+nltk==3.7
+sentencepiece==0.1.96
+scikit-learn==1.0.2
+tqdm
+numpy
+pandas
+transformers==4.17.0
+datasets==2.0.0
+accelerate==0.6.1
