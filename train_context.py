@@ -58,24 +58,26 @@ def main(args):
             attention_mask = dic["attention_mask"].to(args.device)
             labels = dic["labels"].to(args.device)
 
-            optimizer.zero_grad()
-
             output = model(input_ids, token_type_ids, attention_mask, labels)
             loss = output.loss
             logits = output.logits
+
+            loss = loss/args.accum_size
 
             train_correct += (logits.argmax(1) == labels).sum().item()
             train_total += len(logits)
 
             loss.backward()
-            optimizer.step()
+            if (i+1) % args.accum_size == 0:
+                optimizer.step()
+                optimizer.zero_grad()
 
             train_loss += loss.item()
             if i % 10 == 0:
                 print(f"epoch : {epoch + 1}, iter : {i + 1:5d} loss: {train_loss / (i+1):.5f}")
-                print(f"Accuracy : {train_correct/train_total} %")
+                print(f"Accuracy : {train_correct/train_total} ")
         
-        print(f"Train Accuracy : {train_correct/train_total} %")
+        print(f"Train Accuracy : {train_correct/train_total} ")
 
         # TODO: Evaluation loop - calculate accuracy and save model weights
         print("------eval start------\n")
@@ -101,14 +103,14 @@ def main(args):
             valid_loss += loss.item()
             if i % 10 == 0:
                 print(f"epoch : {epoch + 1}, iter : {i + 1:5d} loss: {valid_loss / (i+1):.5f}")
-                print(f"Accuracy : {valid_correct/valid_total} %")
+                print(f"Accuracy : {valid_correct/valid_total} ")
 
-        print(f"Valid Accuracy : {valid_correct/valid_total} %")
+        print(f"Valid Accuracy : {valid_correct/valid_total} ")
     
     print("DONE\n")
 
     tokenizer.save_pretrained(args.tokenizer_dir)
-    torch.save(model.state_dict(), args.ckpt_dir / (args.model_name+".pt"))
+    torch.save(model.state_dict(), args.ckpt_dir / args.model_name)
 
 
 def parse_args() -> Namespace:
@@ -137,7 +139,7 @@ def parse_args() -> Namespace:
         "--model_name",
         type=Path,
         help="model name.",
-        default="model",
+        default="model.pt",
     )
 
     # optimizer
@@ -146,6 +148,7 @@ def parse_args() -> Namespace:
 
     # data loader
     parser.add_argument("--batch_size", type=int, default=1)
+    parser.add_argument("--accum_size", type=int, default=2)
 
     # training
     parser.add_argument(

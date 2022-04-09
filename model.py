@@ -13,10 +13,7 @@ class context_selector(torch.nn.Module):
         super(context_selector, self).__init__()
         self.pre_trained_path = pre_trained_path
         self.split = split
-        if split == "train":
-            self.bert = BertForMultipleChoice.from_pretrained(pre_trained_path)
-        else:
-            self.bert = BertForMultipleChoice
+        self.bert = BertForMultipleChoice.from_pretrained(pre_trained_path)
 
     def forward(self, input_ids, token_type_ids, attention_mask, labels=None) -> Any:
         if self.split == "train":

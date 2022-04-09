@@ -32,9 +32,9 @@ def main(args):
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)
 
     # TODO: init model and move model to target device(cpu / gpu)
-    model = context_selector(split="test").to(args.device)
+    model = context_selector(args.pretrained_path, "test").to(args.device)
 
-    mckpt = torch.load(args.ckpt_path)
+    mckpt = torch.load(args.ckpt_dir / args.model_name)
     model.load_state_dict(mckpt)
     model.eval()
 
@@ -47,6 +47,7 @@ def main(args):
             output = model(input_ids, token_type_ids, attention_mask)
             logits = output.logits
             data[i]["label"] = int(logits.argmax(1).item())
+        print(i)
             
     path = args.cache_dir / "test.json"
     path.write_text(json.dumps(data, ensure_ascii=False, indent=4))
@@ -77,7 +78,7 @@ def parse_args() -> Namespace:
         "--model_name",
         type=Path,
         help="model name.",
-        default="model",
+        default="model.pt",
     )
 
     # data loader
@@ -91,6 +92,13 @@ def parse_args() -> Namespace:
         "--device", type=torch.device, help="cpu, cuda, cuda:0, cuda:1", default="cpu"
     )
 
+    # model
+    parser.add_argument(
+        "--pretrained_path",
+        type=str,
+        help="model path.",
+        default="bert-base-chinese",
+    )
     args = parser.parse_args()
     return args
 
