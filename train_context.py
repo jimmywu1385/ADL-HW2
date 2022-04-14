@@ -1,3 +1,4 @@
+import pickle
 import json
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
@@ -109,6 +110,8 @@ def main(args):
     
     print("DONE\n")
 
+    with open(args.ckpt_dir / Path("config.pkl"), "wb") as f:
+        pickle.dump(model.bert.config, f)
     tokenizer.save_pretrained(args.tokenizer_dir)
     torch.save(model.state_dict(), args.ckpt_dir / args.model_name)
 

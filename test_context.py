@@ -26,13 +26,13 @@ def main(args):
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
-    datasets = contextData(data, tokenizer, args.max_len)
+    datasets = contextData(data[:1], tokenizer, args.max_len)
 
     # TODO: crecate DataLoader for train / dev datasets
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)
 
     # TODO: init model and move model to target device(cpu / gpu)
-    model = context_selector(args.pretrained_path, "test").to(args.device)
+    model = context_selector(args.pretrained_path, "test", args.ckpt_dir / Path("config.pkl")).to(args.device)
 
     mckpt = torch.load(args.ckpt_dir / args.model_name)
     model.load_state_dict(mckpt)
