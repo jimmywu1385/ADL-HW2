@@ -26,7 +26,7 @@ def main(args):
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
-    datasets = contextData(data[:1], tokenizer, args.max_len)
+    datasets = contextData(data, tokenizer, args.max_len)
 
     # TODO: crecate DataLoader for train / dev datasets
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)

@@ -67,7 +67,7 @@ class contextData(Dataset):
                     j = j[:context_max] if len(j) > context_max else j
                     tokens = self.tokenizer.encode_plus(question, j, 
                                             add_special_tokens=True, max_length=self.max_len,
-                                            padding= 'max_length',
+                                            padding= 'max_length', truncation=True,
                                         )
                     input.append(tokens["input_ids"])
                     token_type.append(tokens["token_type_ids"])

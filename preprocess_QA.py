@@ -17,6 +17,8 @@ def main(args):
         for i in data:
             paragraph = []
             center_ind = (context_max_len - 1) // 2
+            if(center_ind > len(i["paragraphs"][i["label"]])):
+                paragraph.append(i["paragraphs"][i["label"]])
             while(center_ind < len(i["paragraphs"][i["label"]])):
                 tail_ind = center_ind - (context_max_len - 1) // 2
                 head_ind = center_ind + context_max_len // 2 + 1
