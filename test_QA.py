@@ -1,22 +1,22 @@
 import json
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 import csv
 
 import torch
 from tqdm import trange
-from transformers import BertTokenizer
+from transformers import AutoTokenizer
 
 from dataset import QAData
 from model import QA
 
 def main(args):
-    tokenizer = BertTokenizer.from_pretrained(args.tokenizer_dir)
+    tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_dir)
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
-    datasets = QAData(data[:5], tokenizer)
+    datasets = QAData(data, tokenizer)
 
     # TODO: crecate DataLoader for train / dev datasets
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)
@@ -36,8 +36,9 @@ def main(args):
         attention_mask = dic["attention_mask"].to(args.device)
         nums = dic["nums"].to(args.device)
         id = dic["id"][0]
+        raw_paragraph = dic["raw_paragraph"][0]
 
-        max_prob = 0.0    
+        max_prob = float("-inf")   
         with torch.no_grad():
             for j in range(nums.item()):
                 output = model(input_ids[:,j,:], token_type_ids[:,j,:], attention_mask[:,j,:])
@@ -46,11 +47,11 @@ def main(args):
 
                 prob = start_prob + end_prob
 
-                if prob > max_prob:
+                if prob > max_prob and start_index <= end_index:
                     max_prob = prob
-                    answer = tokenizer.decode(input_ids[0][j][start_index : end_index + 1])
+                    answer = raw_paragraph[j][start_index : end_index+1]
 
-        answer_list.append(answer.replace(' ',''))
+        answer_list.append(answer)
         id_list.append(id)
         print(i)
             
@@ -106,7 +107,7 @@ def parse_args() -> Namespace:
         "--pretrained_path",
         type=str,
         help="model path.",
-        default="bert-base-chinese",
+        default="uer/roberta-base-chinese-extractive-qa",
     )
     parser.add_argument(
         "--pred_file",

@@ -3,7 +3,7 @@ from pathlib import Path
 import pickle
 
 import torch
-from transformers import BertForMultipleChoice, BertForQuestionAnswering, BertConfig
+from transformers import BertForMultipleChoice, AutoModelForQuestionAnswering, BertConfig
 
 class context_selector(torch.nn.Module):
     def __init__(
@@ -45,9 +45,9 @@ class QA(torch.nn.Module):
         if split == "test":
             with open(config, "rb") as f:
                 self.config = pickle.load(f)
-            self.bert = BertForQuestionAnswering(self.config)
+            self.bert = AutoModelForQuestionAnswering.from_config(self.config)
         else:
-            self.bert = BertForQuestionAnswering.from_pretrained(pre_trained_path)
+            self.bert = AutoModelForQuestionAnswering.from_pretrained(pre_trained_path)
 
     def forward(self, input_ids, token_type_ids, attention_mask, start=None, end=None) -> Any:
         if self.split == "train":

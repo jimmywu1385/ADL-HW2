@@ -6,7 +6,7 @@ from typing import Dict
 
 import torch
 from tqdm import trange
-from transformers import BertTokenizer
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup
 
 from dataset import QAData
 from model import QA
@@ -25,7 +25,7 @@ def set_random(seed):
 def main(args):
     set_random(args.random_seed)
 
-    tokenizer = BertTokenizer.from_pretrained(args.pretrained_path)
+    tokenizer = AutoTokenizer.from_pretrained(args.pretrained_path)
 
     data_paths = {split: args.cache_dir / f"{split}.json" for split in SPLITS}
     data = {split: json.loads(path.read_text()) for split, path in data_paths.items()}
@@ -42,6 +42,11 @@ def main(args):
 
     # TODO: init optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+
+    total_steps = len(train_datasets) * args.num_epoch
+    scheduler = get_linear_schedule_with_warmup(optimizer, 
+                                                num_warmup_steps = 0, 
+                                                num_training_steps = total_steps)
 
     epoch_pbar = trange(args.num_epoch, desc="Epoch")
     
@@ -71,7 +76,9 @@ def main(args):
 
             loss.backward()
             if (i+1) % args.accum_size == 0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                 optimizer.step()
+                scheduler.step()
                 optimizer.zero_grad()
 
             train_loss += loss.item()
@@ -170,7 +177,7 @@ def parse_args() -> Namespace:
         "--pretrained_path",
         type=str,
         help="model path.",
-        default="bert-base-chinese",
+        default="uer/roberta-base-chinese-extractive-qa",
     )
 
     args = parser.parse_args()
