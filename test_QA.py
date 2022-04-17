@@ -17,7 +17,7 @@ def main(args):
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
-    datasets = QAData(data[:10], tokenizer)
+    datasets = QAData(data, tokenizer)
 
     # TODO: crecate DataLoader for train / dev datasets
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)
@@ -49,7 +49,7 @@ def main(args):
 
                 if prob > max_prob and start_index <= end_index:
                     max_prob = prob
-                    answer = tokenizer.decode(input_ids[0][j][start_index : end_index])
+                    answer = tokenizer.decode(input_ids[0][j][start_index : end_index+1])
 
         answer_list.append(answer.replace(" ", ""))
         id_list.append(id)
