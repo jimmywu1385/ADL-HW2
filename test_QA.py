@@ -17,7 +17,7 @@ def main(args):
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
-    datasets = QAData(data, tokenizer)
+    datasets = QAData(data[:10], tokenizer)
 
     # TODO: crecate DataLoader for train / dev datasets
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)
@@ -37,7 +37,7 @@ def main(args):
         attention_mask = dic["attention_mask"].to(args.device)
         nums = dic["nums"].to(args.device)
         id = dic["id"][0]
-        raw_paragraph_token = dic["raw_paragraphs_token"][0]
+        raw_paragraphs = dic["raw_paragraphs"][0]
         question_token_len = dic["question_token_len"][0]
 
         max_prob = float("-inf")   
@@ -53,9 +53,12 @@ def main(args):
                     max_prob = prob
                     start_index -= question_token_len + 2
                     end_index -= question_token_len + 2
-                    answer = raw_paragraph_token[j][start_index : end_index+1]
+                    tmp = tokenizer.encode(raw_paragraphs[j], add_special_tokens=False)
+                    start_index = len("".join(tokenizer.decode(tmp[ : start_index])).replace(" ", "") )
+                    end_index = len("".join(tokenizer.decode(tmp[ : end_index+1])).replace(" ", "") )
+                    answer = raw_paragraphs[j][start_index : end_index]
 
-        answer_list.append("".join(answer))
+        answer_list.append(answer)
         id_list.append(id)
         print(i)
             

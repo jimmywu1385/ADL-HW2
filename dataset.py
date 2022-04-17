@@ -102,7 +102,7 @@ class QAData(Dataset):
             input_ids = []
             token_type_ids = []
             attention_mask = []
-            raw_paragraphs_token = []
+            raw_paragraphs = []
             question_token_len = []
             nums = []
             id = []
@@ -110,7 +110,7 @@ class QAData(Dataset):
                 input = []
                 token_type = []
                 attention = []
-                raw_paragraph_token = []
+                raw_paragraph = []
                 num = 0
                 for j in i["paragraph"]:
                     tokens = self.tokenizer.encode_plus(i["question"], j, 
@@ -120,13 +120,13 @@ class QAData(Dataset):
                     input.append(tokens["input_ids"])
                     token_type.append(tokens["token_type_ids"])
                     attention.append(tokens["attention_mask"])
-                    raw_paragraph_token.append(self.tokenizer.tokenize(j))
+                    raw_paragraph.append(j)
                     num += 1
                 
                 input_ids.append(input)
                 token_type_ids.append(token_type)
                 attention_mask.append(attention)
-                raw_paragraphs_token.append(raw_paragraph_token)
+                raw_paragraphs.append(raw_paragraph)
                 question_token_len.append(len(self.tokenizer.tokenize(i["question"])))
                 nums.append(num)
                 id.append(i["id"])
@@ -137,7 +137,7 @@ class QAData(Dataset):
                 "attention_mask" : FloatTensor(attention_mask),
                 "nums" : LongTensor(nums),
                 "id" : id,
-                "raw_paragraphs_token" : raw_paragraphs_token,
+                "raw_paragraphs" : raw_paragraphs,
                 "question_token_len" : question_token_len,
             }
         else:
