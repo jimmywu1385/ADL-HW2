@@ -1,5 +1,6 @@
 import json
 from argparse import ArgumentParser, Namespace
+from ntpath import join
 from pathlib import Path
 from typing import Any, Dict
 import csv
@@ -16,7 +17,7 @@ def main(args):
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
-    datasets = QAData(data, tokenizer)
+    datasets = QAData(data[:10], tokenizer)
 
     # TODO: crecate DataLoader for train / dev datasets
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)
@@ -36,7 +37,8 @@ def main(args):
         attention_mask = dic["attention_mask"].to(args.device)
         nums = dic["nums"].to(args.device)
         id = dic["id"][0]
-        raw_paragraph = dic["raw_paragraph"][0]
+        raw_paragraph_token = dic["raw_paragraphs_token"][0]
+        question_token_len = dic["question_token_len"][0]
 
         max_prob = float("-inf")   
         with torch.no_grad():
@@ -49,9 +51,11 @@ def main(args):
 
                 if prob > max_prob and start_index <= end_index:
                     max_prob = prob
-                    answer = raw_paragraph[j][start_index : end_index+1]
+                    start_index -= question_token_len + 2
+                    end_index -= question_token_len + 2
+                    answer = raw_paragraph_token[j][start_index : end_index+1]
 
-        answer_list.append(answer)
+        answer_list.append("".join(answer))
         id_list.append(id)
         print(i)
             
