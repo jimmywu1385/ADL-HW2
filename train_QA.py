@@ -7,6 +7,7 @@ from typing import Dict
 import torch
 from tqdm import trange
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup
+import csv
 
 from dataset import QAData
 from model import QA
@@ -23,6 +24,8 @@ def set_random(seed):
     torch.backends.cudnn.deterministic = True
 
 def main(args):
+    loss_plot = []
+    em_plot = []
     set_random(args.random_seed)
 
     tokenizer = AutoTokenizer.from_pretrained(args.pretrained_path)
@@ -82,6 +85,9 @@ def main(args):
                 optimizer.zero_grad()
 
             train_loss += loss.item()
+            if i % 1000 == 0:
+                loss_plot.append(train_loss / (i+1))
+                em_plot.append(train_correct / train_total)
             if i % 10 == 0:
                 print(f"epoch : {epoch + 1}, iter : {i + 1:5d} loss: {train_loss / (i+1):.5f}")
                 print(f"EM : {train_correct / train_total} ")
@@ -124,6 +130,13 @@ def main(args):
     with open(args.ckpt_dir / Path("config.pkl"), "wb") as f:
         pickle.dump(model.bert.config, f)
     torch.save(model.state_dict(), args.ckpt_dir / args.model_name)
+
+    with open(args.plot_file, "w", newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        
+        writer.writerow(['loss', 'em'])
+        for i in range(len(loss_plot)):
+            writer.writerow([loss_plot[i], em_plot[i]])
 
 
 def parse_args() -> Namespace:
@@ -177,9 +190,15 @@ def parse_args() -> Namespace:
         "--pretrained_path",
         type=str,
         help="model path.",
-        default="uer/roberta-base-chinese-extractive-qa",
+        default="bert-base-chinese",
     )
 
+    parser.add_argument(
+        "--plot_file",
+        type=str,
+        help="plot data.",
+        default="plot.csv",
+    )
     args = parser.parse_args()
     return args
 

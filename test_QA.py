@@ -37,6 +37,8 @@ def main(args):
         attention_mask = dic["attention_mask"].to(args.device)
         nums = dic["nums"].to(args.device)
         id = dic["id"][0]
+        paragraphs = dic["paragraphs"][0]
+        paragraph_offsets = dic["paragraph_offsets"][0]
 
         max_prob = float("-inf")   
         with torch.no_grad():
@@ -47,9 +49,9 @@ def main(args):
 
                 prob = start_prob + end_prob
 
-                if prob > max_prob and start_index <= end_index:
+                if prob > max_prob and start_index <= end_index and end_index - start_index < 60:
                     max_prob = prob
-                    answer = tokenizer.decode(input_ids[0][j][start_index : end_index+1])
+                    answer = paragraphs[j][paragraph_offsets[j][start_index][0] : paragraph_offsets[j][end_index][1]]
 
         answer_list.append(answer.replace(" ", ""))
         id_list.append(id)
@@ -107,7 +109,7 @@ def parse_args() -> Namespace:
         "--pretrained_path",
         type=str,
         help="model path.",
-        default="uer/roberta-base-chinese-extractive-qa",
+        default="bert-base-chinese",
     )
     parser.add_argument(
         "--pred_file",

@@ -85,7 +85,7 @@ def parse_args() -> Namespace:
         "--tokenizer_dir",
         type=Path,
         help="Directory to save the tokenizer file.",
-        default="uer/roberta-base-chinese-extractive-qa",
+        default="bert-base-chinese",
     )
     parser.add_argument(
         "--split",

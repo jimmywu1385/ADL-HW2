@@ -102,26 +102,34 @@ class QAData(Dataset):
             input_ids = []
             token_type_ids = []
             attention_mask = []
+            paragraphs = []
+            paragraph_offsets = []
             nums = []
             id = []
             for i in samples:
                 input = []
                 token_type = []
                 attention = []
+                paragraph = []
+                paragraph_offset = []
                 num = 0
                 for j in i["paragraph"]:
                     tokens = self.tokenizer.encode_plus(i["question"], j, 
                                             add_special_tokens=True, max_length=512,
-                                            padding= 'max_length',
+                                            padding= 'max_length', return_offsets_mapping=True,
                                         )
                     input.append(tokens["input_ids"])
                     token_type.append(tokens["token_type_ids"])
                     attention.append(tokens["attention_mask"])
+                    paragraph.append(j)
+                    paragraph_offset.append(tokens["offset_mapping"])
                     num += 1
                 
                 input_ids.append(input)
                 token_type_ids.append(token_type)
                 attention_mask.append(attention)
+                paragraphs.append(paragraph)
+                paragraph_offsets.append(paragraph_offset)
                 nums.append(num)
                 id.append(i["id"])
 
@@ -131,6 +139,8 @@ class QAData(Dataset):
                 "attention_mask" : FloatTensor(attention_mask),
                 "nums" : LongTensor(nums),
                 "id" : id,
+                "paragraphs" : paragraphs,
+                "paragraph_offsets" : paragraph_offsets,
             }
         else:
             start = [i["start"] for i in samples]
