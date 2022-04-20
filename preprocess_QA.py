@@ -85,7 +85,7 @@ def parse_args() -> Namespace:
         "--tokenizer_dir",
         type=Path,
         help="Directory to save the tokenizer file.",
-        default="bert-base-chinese",
+        default="hfl/chinese-macbert-large",
     )
     parser.add_argument(
         "--split",

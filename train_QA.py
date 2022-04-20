@@ -190,7 +190,7 @@ def parse_args() -> Namespace:
         "--pretrained_path",
         type=str,
         help="model path.",
-        default="bert-base-chinese",
+        default="hfl/chinese-macbert-large",
     )
 
     parser.add_argument(
