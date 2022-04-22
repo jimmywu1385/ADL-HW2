@@ -17,7 +17,7 @@ def main(args):
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
-    datasets = QAData(data, tokenizer)
+    datasets = QAData(data[:20], tokenizer)
 
     # TODO: crecate DataLoader for train / dev datasets
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)
@@ -31,6 +31,33 @@ def main(args):
 
     id_list = []
     answer_list = []
+    with torch.no_grad():
+        for i, dic in enumerate(test_datasets):
+            input_ids = dic["input_ids"].to(args.device)
+            token_type_ids = dic["token_type_ids"].to(args.device)
+            attention_mask = dic["attention_mask"].to(args.device)
+            nums = dic["nums"]
+            id = dic["id"]
+            paragraphs = dic["paragraphs"]
+            paragraph_offsets = dic["paragraph_offsets"]
+
+            max_prob = [float("-inf")] * len(input_ids)
+            answer = [""] * len(input_ids)
+            for j in range(nums):
+                output = model(input_ids[:,j,:], token_type_ids[:,j,:], attention_mask[:,j,:])
+                start_prob, start_index = torch.max(output.start_logits, dim=-1)
+                end_prob, end_index = torch.max(output.end_logits, dim=-1)
+
+                for k in range(len(input_ids)):
+                    prob = start_prob[k] + end_prob[k]
+
+                    if prob > max_prob[k] and start_index[k] <= end_index[k] and end_index[k] - start_index[k] < 60:
+                        max_prob[k] = prob
+                        answer[k] = paragraphs[k][j][paragraph_offsets[k][j][start_index[k]][0] : paragraph_offsets[k][j][end_index[k]][1]]
+                
+            id_list += id
+            answer_list += answer
+    '''
     for i, dic in enumerate(test_datasets):
         input_ids = dic["input_ids"].to(args.device)
         token_type_ids = dic["token_type_ids"].to(args.device)
@@ -56,7 +83,7 @@ def main(args):
         answer_list.append(answer.replace(" ", ""))
         id_list.append(id)
         print(i)
-            
+    '''        
     with open(args.pred_file, "w", newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         

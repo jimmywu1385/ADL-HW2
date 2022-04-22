@@ -104,6 +104,54 @@ class QAData(Dataset):
             attention_mask = []
             paragraphs = []
             paragraph_offsets = []
+            id = []
+
+            max_paragraph = 0
+            for i in samples:
+                if len(i["paragraph"]) > max_paragraph:
+                    max_paragraph = len(i["paragraph"])
+
+            for i in samples:
+                input = []
+                token_type = []
+                attention = []
+                paragraph = []
+                paragraph_offset = []
+                for j in range(max_paragraph):
+                    paragraph_token = i["paragraph"][j] if j < len(i["paragraph"]) else i["paragraph"][0]
+                    tokens = self.tokenizer.encode_plus(i["question"], paragraph_token, 
+                                            add_special_tokens=True, max_length=512,
+                                            padding= 'max_length', return_offsets_mapping=True,
+                                        )
+                    input.append(tokens["input_ids"])
+                    token_type.append(tokens["token_type_ids"])
+                    attention.append(tokens["attention_mask"])
+                    paragraph.append(paragraph_token)
+                    paragraph_offset.append(tokens["offset_mapping"])
+                
+                input_ids.append(input)
+                token_type_ids.append(token_type)
+                attention_mask.append(attention)
+                paragraphs.append(paragraph)
+                paragraph_offsets.append(paragraph_offset)
+
+                id.append(i["id"])
+
+            return {
+                "input_ids" : LongTensor(input_ids),
+                "token_type_ids" : LongTensor(token_type_ids),
+                "attention_mask" : FloatTensor(attention_mask),
+                "nums" : max_paragraph,
+                "id" : id,
+                "paragraphs" : paragraphs,
+                "paragraph_offsets" : paragraph_offsets,
+            }
+            '''
+            input_ids = []
+            token_type_ids = []
+            attention_mask = []
+            paragraphs = []
+            paragraph_offsets = []
             nums = []
             id = []
             for i in samples:
@@ -142,6 +190,7 @@ class QAData(Dataset):
                 "paragraphs" : paragraphs,
                 "paragraph_offsets" : paragraph_offsets,
             }
+            '''
         else:
             start = [i["start"] for i in samples]
             end = [i["end"] for i in samples]
