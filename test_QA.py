@@ -17,7 +17,7 @@ def main(args):
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
-    datasets = QAData(data[:20], tokenizer)
+    datasets = QAData(data, tokenizer)
 
     # TODO: crecate DataLoader for train / dev datasets
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)
@@ -54,7 +54,7 @@ def main(args):
                     if prob > max_prob[k] and start_index[k] <= end_index[k] and end_index[k] - start_index[k] < 60:
                         max_prob[k] = prob
                         answer[k] = paragraphs[k][j][paragraph_offsets[k][j][start_index[k]][0] : paragraph_offsets[k][j][end_index[k]][1]]
-                
+            print(i)    
             id_list += id
             answer_list += answer
     '''
