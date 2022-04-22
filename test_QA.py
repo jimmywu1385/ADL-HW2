@@ -23,7 +23,7 @@ def main(args):
     test_datasets = torch.utils.data.DataLoader(datasets, batch_size=args.batch_size, collate_fn=datasets.collate_fn, shuffle=False)
 
     # TODO: init model and move model to target device(cpu / gpu)
-    model = QA(args.pretrained_path, "test", args.ckpt_dir / Path("config.pkl")).to(args.device)
+    model = QA("test", config=args.ckpt_dir / Path("config.pkl")).to(args.device)
 
     mckpt = torch.load(args.ckpt_dir / args.model_name)
     model.load_state_dict(mckpt)
@@ -57,33 +57,7 @@ def main(args):
             print(i)    
             id_list += id
             answer_list += answer
-    '''
-    for i, dic in enumerate(test_datasets):
-        input_ids = dic["input_ids"].to(args.device)
-        token_type_ids = dic["token_type_ids"].to(args.device)
-        attention_mask = dic["attention_mask"].to(args.device)
-        nums = dic["nums"].to(args.device)
-        id = dic["id"][0]
-        paragraphs = dic["paragraphs"][0]
-        paragraph_offsets = dic["paragraph_offsets"][0]
-
-        max_prob = float("-inf")   
-        with torch.no_grad():
-            for j in range(nums.item()):
-                output = model(input_ids[:,j,:], token_type_ids[:,j,:], attention_mask[:,j,:])
-                start_prob, start_index = torch.max(output.start_logits, dim=-1)
-                end_prob, end_index = torch.max(output.end_logits, dim=-1)
-
-                prob = start_prob + end_prob
-
-                if prob > max_prob and start_index <= end_index and end_index - start_index < 60:
-                    max_prob = prob
-                    answer = paragraphs[j][paragraph_offsets[j][start_index][0] : paragraph_offsets[j][end_index][1]]
-
-        answer_list.append(answer.replace(" ", ""))
-        id_list.append(id)
-        print(i)
-    '''        
+       
     with open(args.pred_file, "w", newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         
@@ -131,13 +105,6 @@ def parse_args() -> Namespace:
         "--device", type=torch.device, help="cpu, cuda, cuda:0, cuda:1", default="cpu"
     )
 
-    # model
-    parser.add_argument(
-        "--pretrained_path",
-        type=str,
-        help="model path.",
-        default="hfl/chinese-macbert-large",
-    )
     parser.add_argument(
         "--pred_file",
         type=Path,

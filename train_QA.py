@@ -28,7 +28,7 @@ def main(args):
     em_plot = []
     set_random(args.random_seed)
 
-    tokenizer = AutoTokenizer.from_pretrained(args.pretrained_path)
+    tokenizer = AutoTokenizer.from_pretrained(args.pretrained_path) if args.pretrained_path != None else AutoTokenizer.from_pretrained("bert-base-chinese")
 
     data_paths = {split: args.cache_dir / f"{split}.json" for split in SPLITS}
     data = {split: json.loads(path.read_text()) for split, path in data_paths.items()}
@@ -41,7 +41,7 @@ def main(args):
     valid_datasets = torch.utils.data.DataLoader(datasets["valid"], batch_size=args.batch_size, collate_fn=datasets["valid"].collate_fn, shuffle=False)
 
     # TODO: init model and move model to target device(cpu / gpu)
-    model = QA(args.pretrained_path, "train").to(args.device)
+    model = QA("train", args.pretrained_path).to(args.device)
 
     # TODO: init optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -190,9 +190,9 @@ def parse_args() -> Namespace:
         "--pretrained_path",
         type=str,
         help="model path.",
-        default="hfl/chinese-macbert-large",
+        default=None,
     )
-
+#"hfl/chinese-macbert-large"
     parser.add_argument(
         "--plot_file",
         type=str,

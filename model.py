@@ -35,8 +35,8 @@ class context_selector(torch.nn.Module):
 class QA(torch.nn.Module):
     def __init__(
         self,
-        pre_trained_path: Path,
         split: str,
+        pre_trained_path: Path = None,
         config: Path = None,
     ) -> None:
         super(QA, self).__init__()
@@ -47,7 +47,11 @@ class QA(torch.nn.Module):
                 self.config = pickle.load(f)
             self.bert = AutoModelForQuestionAnswering.from_config(self.config)
         else:
-            self.bert = AutoModelForQuestionAnswering.from_pretrained(pre_trained_path)
+            if pre_trained_path == None:
+                self.config = BertConfig()
+                self.bert = AutoModelForQuestionAnswering.from_config(self.config)
+            else:
+                self.bert = AutoModelForQuestionAnswering.from_pretrained(pre_trained_path)
 
     def forward(self, input_ids, token_type_ids, attention_mask, start=None, end=None) -> Any:
         if self.split == "train":
