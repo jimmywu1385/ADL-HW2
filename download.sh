@@ -8,7 +8,7 @@ wget https://www.dropbox.com/s/9nq626bc662pp9m/contexttokenizer_config.json?dl=1
 wget https://www.dropbox.com/s/ovnpg6ys42fm86q/contextvocab.txt?dl=1 -O ckpt/context/vocab.txt
 
 wget https://www.dropbox.com/s/890ubmqi1a0pdmk/macbert_QA.pt?dl=1 -O ckpt/QA/macbert_QA.pt
-wget https://www.dropbox.com/s/vzszt4zbm11n3u5/QAconfig.pkl?dl=1 -O ckpt/QA/config.pkl
+wget https://www.dropbox.com/s/t4a7sdyy6wa68mm/QAconfig.pkl?dl=1 -O ckpt/QA/config.pkl
 wget https://www.dropbox.com/s/kniz0o6tp2fkanh/QAspecial_tokens_map.json?dl=1 -O ckpt/QA/special_tokens_map.json
 wget https://www.dropbox.com/s/zuf527nau5y70oi/QAtokenizer_config.json?dl=1 -O ckpt/QA/tokenizer_config.json
 wget https://www.dropbox.com/s/opfqp5jbjpculay/QAtokenizer.json?dl=1 -O ckpt/QA/tokenizer.json
