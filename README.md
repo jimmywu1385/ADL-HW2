@@ -24,5 +24,5 @@ python3.8 train_QA.py --device cuda
 ```
 ## Test QA
 ```
-bash intent_cls.sh /path/to/test.json /path/to/pred.csv
+bash ./run.sh ./path/to/context.json ./path/to/test.json ./path/to/pred.csv
 ```
