@@ -136,7 +136,7 @@ def parse_args() -> Namespace:
         "--model_name",
         type=Path,
         help="model name.",
-        default="model.pt",
+        default="bert-base-chinese-mc.pt",
     )
 
     # optimizer
