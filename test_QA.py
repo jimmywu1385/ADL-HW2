@@ -12,7 +12,15 @@ from transformers import AutoTokenizer
 from dataset import QAData
 from model import QA
 
+def set_random(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+
 def main(args):
+    set_random(args.random_seed)
     tokenizer = AutoTokenizer.from_pretrained(args.ckpt_dir)
 
     path = args.cache_dir / "test.json"
