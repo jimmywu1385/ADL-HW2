@@ -155,17 +155,12 @@ def parse_args() -> Namespace:
         help="Directory to save the model file.",
         default="./ckpt/QA",
     )
-    parser.add_argument(
-        "--tokenizer_dir",
-        type=Path,
-        help="Directory to save the tokenizer file.",
-        default="./ckpt/tokenizer",
-    )
+
     parser.add_argument(
         "--model_name",
         type=Path,
         help="model name.",
-        default="model.pt",
+        default="macbert_QA.pt",
     )
 
     # optimizer
@@ -173,7 +168,7 @@ def parse_args() -> Namespace:
     parser.add_argument("--weight_decay", type=float, default=1e-4)
 
     # data loader
-    parser.add_argument("--batch_size", type=int, default=1)
+    parser.add_argument("--batch_size", type=int, default=4)
     parser.add_argument("--accum_size", type=int, default=2)
 
     # training
@@ -183,16 +178,16 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "--device", type=torch.device, help="cpu, cuda, cuda:0, cuda:1", default="cpu"
     )
-    parser.add_argument("--num_epoch", type=int, default=1)
+    parser.add_argument("--num_epoch", type=int, default=2)
 
     # model
     parser.add_argument(
         "--pretrained_path",
         type=str,
         help="model path.",
-        default=None,
+        default="hfl/chinese-macbert-large",
     )
-#"hfl/chinese-macbert-large"
+
     parser.add_argument(
         "--plot_file",
         type=str,

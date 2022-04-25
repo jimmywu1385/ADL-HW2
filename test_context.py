@@ -22,7 +22,7 @@ def set_random(seed):
 def main(args):
     set_random(args.random_seed)
 
-    tokenizer = BertTokenizer.from_pretrained(args.tokenizer_dir)
+    tokenizer = BertTokenizer.from_pretrained(args.ckpt_dir)
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
@@ -68,17 +68,12 @@ def parse_args() -> Namespace:
         help="Directory to save the model file.",
         default="./ckpt/context",
     )
-    parser.add_argument(
-        "--tokenizer_dir",
-        type=Path,
-        help="Directory to save the tokenizer file.",
-        default="./ckpt/tokenizer",
-    )
+
     parser.add_argument(
         "--model_name",
         type=Path,
         help="model name.",
-        default="model.pt",
+        default="bert-base-chinese-mc.pt",
     )
 
     # data loader

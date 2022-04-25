@@ -112,7 +112,7 @@ def main(args):
 
     with open(args.ckpt_dir / Path("config.pkl"), "wb") as f:
         pickle.dump(model.bert.config, f)
-    tokenizer.save_pretrained(args.tokenizer_dir)
+    tokenizer.save_pretrained(args.ckpt_dir)
     torch.save(model.state_dict(), args.ckpt_dir / args.model_name)
 
 
@@ -131,12 +131,6 @@ def parse_args() -> Namespace:
         type=Path,
         help="Directory to save the model file.",
         default="./ckpt/context",
-    )
-    parser.add_argument(
-        "--tokenizer_dir",
-        type=Path,
-        help="Directory to save the tokenizer file.",
-        default="./ckpt/tokenizer",
     )
     parser.add_argument(
         "--model_name",
@@ -160,7 +154,7 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "--device", type=torch.device, help="cpu, cuda, cuda:0, cuda:1", default="cpu"
     )
-    parser.add_argument("--num_epoch", type=int, default=2)
+    parser.add_argument("--num_epoch", type=int, default=1)
 
     # model
     parser.add_argument(
@@ -176,5 +170,4 @@ def parse_args() -> Namespace:
 if __name__ == "__main__":
     args = parse_args()
     args.ckpt_dir.mkdir(parents=True, exist_ok=True)
-    args.tokenizer_dir.mkdir(parents=True, exist_ok=True)
     main(args)

@@ -13,7 +13,7 @@ from dataset import QAData
 from model import QA
 
 def main(args):
-    tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_dir)
+    tokenizer = AutoTokenizer.from_pretrained(args.ckpt_dir)
 
     path = args.cache_dir / "test.json"
     data = json.loads(path.read_text())
@@ -81,21 +81,16 @@ def parse_args() -> Namespace:
         help="Directory to save the model file.",
         default="./ckpt/QA",
     )
-    parser.add_argument(
-        "--tokenizer_dir",
-        type=Path,
-        help="Directory to save the tokenizer file.",
-        default="./ckpt/tokenizer",
-    )
+    
     parser.add_argument(
         "--model_name",
         type=Path,
         help="model name.",
-        default="model.pt",
+        default="macbert_QA.pt",
     )
 
     # data loader
-    parser.add_argument("--batch_size", type=int, default=1)
+    parser.add_argument("--batch_size", type=int, default=4)
 
     # training
     parser.add_argument(

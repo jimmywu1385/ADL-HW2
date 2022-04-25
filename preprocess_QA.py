@@ -70,8 +70,7 @@ def main(args):
                 }
             )
         with open(args.output_dir / f"{split}.json", "w") as f:
-            json.dump(output, f, ensure_ascii=False, indent=4)      
-    tokenizer.save_pretrained("./ckpt/tokenizer")  
+            json.dump(output, f, ensure_ascii=False, indent=4)
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
@@ -85,7 +84,7 @@ def parse_args() -> Namespace:
         "--tokenizer_dir",
         type=Path,
         help="Directory to save the tokenizer file.",
-        default="hfl/chinese-macbert-large",
+        default="./ckpt/QA",
     )
     parser.add_argument(
         "--split",

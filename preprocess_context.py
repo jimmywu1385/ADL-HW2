@@ -8,14 +8,12 @@ def main(args):
 
     data = json.loads(args.data_path.read_text())
 
-    split = args.data_path.name[:-5]
-
     output = []
     for i in data:
         paragraph = []
         for j in i["paragraphs"]:
             paragraph.append(context[j])
-        if split == "test":
+        if args.split == "test":
             output.append(
                 {
                     "split" : "test",
@@ -36,7 +34,7 @@ def main(args):
                     "answer" : i["answer"],
                 }
             )
-    with open(args.output_dir / f"{split}.json", "w") as f:
+    with open(args.output_dir / f"{args.split}.json", "w") as f:
         json.dump(output, f, ensure_ascii=False, indent=4)        
 
 def parse_args() -> Namespace:
@@ -58,6 +56,12 @@ def parse_args() -> Namespace:
         type=Path,
         help="Directory to save the output file.",
         default="./cache/context/",
+    )
+    parser.add_argument(
+        "--split",
+        type=str,
+        help="Directory to save the output file.",
+        default="test",
     )
     args = parser.parse_args()
     return args
