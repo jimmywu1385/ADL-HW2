@@ -12,9 +12,15 @@ from transformers import BertTokenizer
 from dataset import contextData
 from model import context_selector
 
+def set_random(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
 
 def main(args):
-
+    set_random(args.random_seed)
     tokenizer = BertTokenizer.from_pretrained(args.ckpt_dir)
 
     path = args.cache_dir / "test.json"
